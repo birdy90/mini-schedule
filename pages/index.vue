@@ -1,64 +1,67 @@
-<script setup>
-import { useStorage } from '@vueuse/core';
+<script setup lang="ts">
+import { useStorage } from "@vueuse/core";
+import type AddModal from "~/components/schedule/AddModal.vue";
+import type { ScheduleDayItem } from "~/types";
+import { toPlainItem } from "~/utils";
 
-const addModalRef = ref(null);
+const addModalRef = ref<InstanceType<typeof AddModal> | null>(null);
 
-const items = [
+const items: ScheduleDayItem[] = [
   {
-    title: 'working hours',
+    title: "working hours",
     regular: true,
-    startDate: new Date('2024-06-10 14:00:00.000'),
-    endDate: new Date('2024-06-10 23:00:00.000'),
+    startDate: new Date("2024-06-10 14:00:00.000"),
+    endDate: new Date("2024-06-10 23:00:00.000"),
   },
   {
-    title: 'working hours',
+    title: "working hours",
     regular: true,
-    startDate: new Date('2024-06-11 14:00:00.000'),
-    endDate: new Date('2024-06-11 23:00:00.000'),
+    startDate: new Date("2024-06-11 14:00:00.000"),
+    endDate: new Date("2024-06-11 23:00:00.000"),
   },
   {
-    title: 'working hours',
+    title: "working hours",
     regular: true,
-    startDate: new Date('2024-06-12 14:00:00.000'),
-    endDate: new Date('2024-06-12 23:00:00.000'),
+    startDate: new Date("2024-06-12 14:00:00.000"),
+    endDate: new Date("2024-06-12 23:00:00.000"),
   },
   {
-    title: 'working hours',
+    title: "working hours",
     regular: true,
-    startDate: new Date('2024-06-13 14:00:00.000'),
-    endDate: new Date('2024-06-13 23:00:00.000'),
+    startDate: new Date("2024-06-13 14:00:00.000"),
+    endDate: new Date("2024-06-13 23:00:00.000"),
   },
   {
-    title: 'working hours',
+    title: "working hours",
     regular: true,
-    startDate: new Date('2024-06-14 14:00:00.000'),
-    endDate: new Date('2024-06-14 23:00:00.000'),
+    startDate: new Date("2024-06-14 14:00:00.000"),
+    endDate: new Date("2024-06-14 23:00:00.000"),
   },
   {
-    title: 'psy',
+    title: "psy",
     regular: false,
-    startDate: new Date('2024-06-04 12:00:00.000'),
-    endDate: new Date('2024-06-04 13:00:00.000'),
+    startDate: new Date("2024-06-04 12:00:00.000"),
+    endDate: new Date("2024-06-04 13:00:00.000"),
   },
   {
-    title: 'eng',
+    title: "eng",
     regular: false,
-    startDate: new Date('2024-06-04 13:00:00.000'),
-    endDate: new Date('2024-06-04 14:30:00.000'),
+    startDate: new Date("2024-06-04 13:00:00.000"),
+    endDate: new Date("2024-06-04 14:00:00.000"),
   },
   {
-    title: 'eng',
+    title: "eng",
     regular: false,
-    startDate: new Date('2024-06-06 12:00:00.000'),
-    endDate: new Date('2024-06-06 13:30:00.000'),
+    startDate: new Date("2024-06-06 12:00:00.000"),
+    endDate: new Date("2024-06-06 13:30:00.000"),
   },
 ];
 
-const storedItems = useStorage('schedule-items', [], undefined, {
+const storedItems = useStorage("schedule-items", [], undefined, {
   serializer: {
-    read: (v) => {
-      if (!v) return null;
-      const parsed = JSON.parse(v);
+    read: (v): ScheduleDayItem[] => {
+      if (!v) return [];
+      const parsed = JSON.parse(v) as ScheduleDayItem[];
       return [
         ...parsed.map((t) => ({
           ...t,
@@ -71,8 +74,8 @@ const storedItems = useStorage('schedule-items', [], undefined, {
   },
 });
 
-if (storedItems.value.length === 0) {
-  storedItems.value.push(...items);
+if (storedItems.value?.length === 0) {
+  storedItems.value?.push(...items);
 }
 
 function addItemModalShow() {
@@ -80,7 +83,7 @@ function addItemModalShow() {
 }
 
 watch(addModalRef, () => {
-addItemModalShow();
+  addItemModalShow();
 });
 </script>
 

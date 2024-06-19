@@ -1,12 +1,14 @@
-<script setup>
-const props = defineProps(['item', 'timeInterval']);
+<script setup lang="ts">
+import type { PlainScheduleDayItem, ScheduleDayItem } from "~/types";
+import { dateToTimeIndex } from "~/utils";
 
-function getTime(datetime) {
-  return datetime.getHours() + datetime.getMinutes() / 60;
-}
+const props = defineProps<{
+  item: PlainScheduleDayItem;
+  timeInterval: [number, number];
+}>();
 
-const itemStartTime = getTime(props.item.startDate);
-const itemEndTime = getTime(props.item.endDate);
+const itemStartTime = props.item.timeRange[0];
+const itemEndTime = props.item.timeRange[1];
 const dayDuration = props.timeInterval[1] - props.timeInterval[0];
 const itemDuration = itemEndTime - itemStartTime;
 const itemWidthPercentage = (itemDuration / dayDuration) * 100;
@@ -17,11 +19,13 @@ const itemOffsetPercentage = (itemOffset / dayDuration) * 100;
 <template>
   <div
     :class="[
-      'border border-gray-200 rounded p-2 flex items-center justify-center absolute h-full text-xs',
-      item.regular ? 'bg-gray-50 text-gray-400' : 'bg-green-50',
+      'rounded p-0.5 flex items-center justify-center absolute h-full text-xs',
+      item.regular
+        ? 'bg-main-50 text-main-500 border border-gray-200'
+        : 'bg-main-600 text-white shadow-lg shadow-main-700/20',
     ]"
     :style="{
-      width: `calc(${itemWidthPercentage}% - 0.25rem)`,
+      width: `calc(${itemWidthPercentage}% - 0.5rem)`,
       left: `calc(${itemOffsetPercentage}% + 0.25rem)`,
     }"
   >

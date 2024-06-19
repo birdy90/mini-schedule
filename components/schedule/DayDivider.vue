@@ -1,9 +1,8 @@
-<script setup>
-const props = defineProps(['index', 'timeInterval']);
-
-function getTime(datetime) {
-  return datetime.getHours() + datetime.getMinutes() / 60;
-}
+<script setup lang="ts">
+const props = defineProps<{
+  index: number;
+  timeInterval: [number, number];
+}>();
 
 const dayDuration = props.timeInterval[1] - props.timeInterval[0];
 const dividerStep = 100 / dayDuration;
