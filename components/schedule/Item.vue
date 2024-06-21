@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { PlainScheduleDayItem, ScheduleDayItem } from "~/types";
-import { dateToTimeIndex } from "~/utils";
+import type { PlainScheduleDayItem } from "~/types";
 
 const props = defineProps<{
   item: PlainScheduleDayItem;
@@ -20,9 +19,15 @@ const itemOffsetPercentage = (itemOffset / dayDuration) * 100;
   <div
     :class="[
       'rounded p-0.5 flex items-center justify-center absolute h-full text-xs',
+      item.regular ? 'text-main-500' : 'text-secondary-500',
+      item.background ? 'border-gray-200' : 'text-white shadow-lg',
       item.regular
-        ? 'bg-main-50 text-main-500 border border-gray-200'
-        : 'bg-main-600 text-white shadow-lg shadow-main-700/20',
+        ? item.background
+          ? 'bg-main-50 border '
+          : 'bg-main-600 shadow-main-700/40'
+        : item.background
+          ? 'bg-secondary-50 border'
+          : 'bg-secondary-600 shadow-secondary-700/40',
     ]"
     :style="{
       width: `calc(${itemWidthPercentage}% - 0.5rem)`,

@@ -1,6 +1,7 @@
 interface ScheduleDayItemBase {
   title: string;
   regular: boolean;
+  background: boolean;
   day?: number;
 }
 

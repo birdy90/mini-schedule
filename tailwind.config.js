@@ -1,4 +1,4 @@
-import colors from "tailwindcss/colors.js";
+import colors from "tailwindcss/colors";
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -14,6 +14,7 @@ export default {
     extend: {
       colors: {
         main: colors.indigo,
+        secondary: colors.orange,
       },
     },
   },

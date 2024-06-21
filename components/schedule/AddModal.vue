@@ -1,13 +1,15 @@
-<script setup lang="ts">
-import type { PlainScheduleDayItem } from "~/types";
+<script lang="ts" setup>
+import type { PlainScheduleDayItem, ScheduleDayItem } from "~/types";
 import { useForm } from "@tanstack/vue-form";
 import type { ModalWindow } from "#components";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { z } from "zod";
 import { dateRangeToTimeIndex } from "~/utils";
-import type { ChangeEvent } from "rollup";
-import TimeRange from "~/components/schedule/addModal/TimeRangeBlock.vue";
 import TimeRangeBlock from "~/components/schedule/addModal/TimeRangeBlock.vue";
+
+const emits = defineEmits<{
+  save: [value: ScheduleDayItem];
+}>();
 
 const today = new Date();
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -25,11 +27,14 @@ const form = useForm<PlainScheduleDayItem, typeof zodValidator>({
   defaultValues: {
     title: "",
     timeRange: dateRangeToTimeIndex(datesIntervalValue),
-    regular: false,
+    regular: true,
+    background: false,
     day: new Date().getDay() || 7,
   },
   onSubmit: async ({ value }) => {
-    console.log(value);
+    emits("save", fromPlainItem(value));
+    modalRef.value?.close();
+    form.reset();
   },
 });
 
@@ -47,20 +52,20 @@ defineExpose({
   <ModalWindow ref="modalRef" title="New calendar item">
     <div class="flex flex-col gap-4">
       <form.Field
+        :validators="{ onChange: z.string().min(1, 'Event name is required') }"
         name="title"
-        :validators="{ onBlur: z.string().min(1, 'Event name is required') }"
       >
         <template v-slot="{ field }">
           <div class="flex flex-col">
             <FormsUiLabel class="mb-1" for="title-input" label="Event name" />
             <FormsUiInput
               id="title-input"
-              placeholder="Put event name here"
+              :invalid="field.state.meta.errors.length > 0"
               :name="field.name"
               :value="field.state.value"
+              placeholder="Put event name here"
               @blur="field.handleBlur"
               @change="(e) => field.handleChange(e.target.value)"
-              :invalid="field.state.meta.errors.length > 0"
             />
             <div
               v-if="field.state.meta.errors.length > 0"
@@ -77,23 +82,23 @@ defineExpose({
           <div class="flex flex-col gap-1">
             <ScheduleTimeline />
             <ScheduleDay
-              class="h-12"
               :items="[{ ...data.values, title: '' }]"
+              class="h-12"
             />
           </div>
 
-          <form.Field name="day" :validators="{ onBlur: z.number() }">
+          <form.Field name="day">
             <template v-slot="{ field }">
               <div>
                 <div class="flex gap-1 sm:gap-2">
                   <Button
                     v-for="(item, i) in daysOfWeek"
-                    :tabindex="data.values.day === i + 1 ? -1 : 0"
                     :class="[
                       'grow items-center justify-center text-sm',
                       data.values.day === i + 1 &&
                         'border-transparent bg-main-600 hover:bg-main-600 active:bg-main-600 shadow-lg shadow-main-700/20 text-white pointer-events-none',
                     ]"
+                    :tabindex="data.values.day === i + 1 ? -1 : 0"
                     @click="() => field.handleChange(i + 1)"
                   >
                     {{ item }}
@@ -103,20 +108,32 @@ defineExpose({
             </template>
           </form.Field>
 
-          {{ data.values.timeRange }}
-
           <form.Field name="timeRange">
             <template v-slot="{ field }">
               <TimeRangeBlock :field :subscriptionData="data" />
             </template>
           </form.Field>
 
-          <form.Field name="regular" :validators="{ onBlur: z.boolean() }">
+          <form.Field name="regular">
             <template v-slot="{ field }">
               <Checkbox
                 id="regular-input"
-                label="Is a regular event"
                 :checked="field.state.value as boolean"
+                label="Is a regular event"
+                @change="
+                  (e) =>
+                    field.handleChange((e.target as HTMLInputElement).checked)
+                "
+              />
+            </template>
+          </form.Field>
+
+          <form.Field name="background">
+            <template v-slot="{ field }">
+              <Checkbox
+                id="background-input"
+                :checked="field.state.value as boolean"
+                label="Is a background event"
                 @change="
                   (e) =>
                     field.handleChange((e.target as HTMLInputElement).checked)
