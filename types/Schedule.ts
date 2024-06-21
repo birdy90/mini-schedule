@@ -2,7 +2,6 @@ interface ScheduleDayItemBase {
   title: string;
   regular: boolean;
   background: boolean;
-  day?: number;
 }
 
 export interface ScheduleDayItem extends ScheduleDayItemBase {
@@ -13,4 +12,5 @@ export interface ScheduleDayItem extends ScheduleDayItemBase {
 export interface PlainScheduleDayItem extends ScheduleDayItemBase {
   timeRange: [number, number];
   day: number;
+  preview?: boolean;
 }

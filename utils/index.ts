@@ -46,11 +46,13 @@ export function toPlainItem({
 
 export function fromPlainItem({
   timeRange,
+  day,
+  preview,
   ...item
 }: PlainScheduleDayItem): ScheduleDayItem {
   return {
     ...item,
-    startDate: timeIndexAndDayToDate(timeRange[0], item.day),
-    endDate: timeIndexAndDayToDate(timeRange[1], item.day),
+    startDate: timeIndexAndDayToDate(timeRange[0], day),
+    endDate: timeIndexAndDayToDate(timeRange[1], day),
   };
 }

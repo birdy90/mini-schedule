@@ -82,8 +82,8 @@ defineExpose({
           <div class="flex flex-col gap-1">
             <ScheduleTimeline />
             <ScheduleDay
-              :items="[{ ...data.values, title: '' }]"
-              class="h-12"
+              :items="[{...data.values, preview: true}]"
+              class="h-14"
             />
           </div>
 
