@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center min-w-0">
     <div class="mr-2 shrink-0">{{ label }}</div>
-    <IconButton
+    <UiIconButton
       class="shrink-0 rounded-r-none border-r-0"
       name="bi:dash"
       @click="onSubtract"
@@ -15,7 +15,7 @@
       readonly
       tabindex="-1"
     />
-    <IconButton
+    <UiIconButton
       class="shrink-0 rounded-l-none border-l-0"
       name="bi:plus"
       @click="onAdd"

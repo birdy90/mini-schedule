@@ -1,4 +1,6 @@
 <template>
+  <UiModalWindow />
+
   <main class="flex flex-col h-dvh p-2 gap-2 text-sm">
     <div class="flex justify-between items-center">
       <div class="flex justify-center items-center gap-4">
@@ -23,9 +25,17 @@
 
 <script lang="ts" setup>
 import type AddModal from "~/components/schedule/AddModal.vue";
+import AddItemModal from "~/components/schedule/AddModal.vue";
 import type { ScheduleDayItem } from "~/types";
 import type { BaseAuthStore } from "pocketbase";
 import type { Ref } from "@vue/reactivity";
+
+import useModalStore from "~/stores/modalStore";
+
+const store = useModalStore();
+
+// Make a function that opens modal with our inner component
+function openInfoModal() {}
 
 const { $pb } = useNuxtApp();
 
@@ -53,7 +63,7 @@ onMounted(() => {
 });
 
 function addItemModalShow() {
-  addModalRef.value?.open();
+  store.openModal({ component: AddItemModal });
 }
 
 function onAddItem(item: ScheduleDayItem) {
