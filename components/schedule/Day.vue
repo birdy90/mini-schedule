@@ -1,21 +1,3 @@
-<script setup lang="ts">
-import { useCalendarSettings } from "~/composables/useCalendarSettings";
-import type { PlainScheduleDayItem } from "~/types";
-
-const props = defineProps<{
-  index?: number;
-  items?: PlainScheduleDayItem[];
-}>();
-const timeSettings = useCalendarSettings();
-
-const today = new Date();
-const isToday = props.index === (today.getDay() || 7);
-
-function onUpdated(callback: () => void) {
-  console.log(props.items?.[0]);
-}
-</script>
-
 <template>
   <div
     :class="[
@@ -42,3 +24,17 @@ function onUpdated(callback: () => void) {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useCalendarSettings } from "~/composables/useCalendarSettings";
+import type { PlainScheduleDayItem } from "~/types";
+
+const props = defineProps<{
+  index?: number;
+  items?: PlainScheduleDayItem[];
+}>();
+const timeSettings = useCalendarSettings();
+
+const today = new Date();
+const isToday = props.index === (today.getDay() || 7);
+</script>

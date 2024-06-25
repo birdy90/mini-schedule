@@ -1,11 +1,3 @@
-<script setup lang="ts">
-defineProps<{ label?: string; readonly?: boolean }>();
-
-defineOptions({
-  inheritAttrs: false,
-});
-</script>
-
 <template>
   <div
     :class="[
@@ -26,3 +18,11 @@ defineOptions({
     />
   </div>
 </template>
+
+<script setup lang="ts">
+defineProps<{ label?: string; readonly?: boolean }>();
+
+defineOptions({
+  inheritAttrs: false,
+});
+</script>

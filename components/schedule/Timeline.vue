@@ -1,14 +1,3 @@
-<script setup lang="ts">
-import { useCalendarSettings } from "~/composables/useCalendarSettings";
-
-const timeSettings = useCalendarSettings();
-
-const timeString = (index: number): string => {
-  const hour = index * timeSettings.dividerStep + timeSettings.startHour;
-  return `${hour % 12 || 12}${hour < 12 || hour === 24 ? "am" : "pm"}`;
-};
-</script>
-
 <template>
   <div
     class="grid text-xs relative px-2"
@@ -29,3 +18,14 @@ const timeString = (index: number): string => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useCalendarSettings } from "~/composables/useCalendarSettings";
+
+const timeSettings = useCalendarSettings();
+
+const timeString = (index: number): string => {
+  const hour = index * timeSettings.dividerStep + timeSettings.startHour;
+  return `${hour % 12 || 12}${hour < 12 || hour === 24 ? "am" : "pm"}`;
+};
+</script>

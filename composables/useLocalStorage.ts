@@ -1,5 +1,5 @@
 import { useStorage } from "@vueuse/core";
-import type { ScheduleDayItem, DataManager } from "~/types";
+import type { ScheduleDayItem } from "~/types";
 import { sampleData } from "~/utils/data/sample";
 
 const storageItemsKey = "schedule-items";
@@ -24,6 +24,7 @@ export function useLocalStorage(): Ref<ScheduleDayItem[]> {
   });
 
   onMounted(() => {
+    console.log(!scheduleData.value, scheduleData.value?.length === 0);
     if (!scheduleData.value || scheduleData.value?.length === 0) {
       scheduleData.value = [...sampleData];
     }

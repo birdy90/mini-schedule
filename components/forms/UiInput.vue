@@ -1,3 +1,7 @@
+<template>
+  <input :class="inputClasses" placeholder="..." />
+</template>
+
 <script setup lang="ts">
 const props = defineProps<{
   invalid?: boolean;
@@ -8,7 +12,3 @@ const inputClasses = computed(() => [
   props.invalid ? "border-red-500 focus:outline-red-500" : "border-gray-100",
 ]);
 </script>
-
-<template>
-  <input :class="inputClasses" placeholder="..." />
-</template>

@@ -1,3 +1,28 @@
+<template>
+  <div class="flex items-center min-w-0">
+    <div class="mr-2 shrink-0">{{ label }}</div>
+    <IconButton
+      class="shrink-0 rounded-r-none border-r-0"
+      name="bi:dash"
+      @click="onSubtract"
+    />
+    <FormsUiInput
+      id="start-time-input"
+      :name="field.name"
+      :value="timeIndexToTimeString(subscriptionData.values.timeRange[index])"
+      class="rounded-none text-right pointer-events-none"
+      placeholder="Start time"
+      readonly
+      tabindex="-1"
+    />
+    <IconButton
+      class="shrink-0 rounded-l-none border-l-0"
+      name="bi:plus"
+      @click="onAdd"
+    />
+  </div>
+</template>
+
 <script lang="ts" setup>
 import { type FormState } from "@tanstack/vue-form";
 import type { PlainScheduleDayItem } from "~/types";
@@ -57,28 +82,3 @@ function onSubtract() {
   handleChange((a, b) => a - b);
 }
 </script>
-
-<template>
-  <div class="flex items-center min-w-0">
-    <div class="mr-2 shrink-0">{{ label }}</div>
-    <IconButton
-      class="shrink-0 rounded-r-none border-r-0"
-      name="bi:dash"
-      @click="onSubtract"
-    />
-    <FormsUiInput
-      id="start-time-input"
-      :name="field.name"
-      :value="timeIndexToTimeString(subscriptionData.values.timeRange[index])"
-      class="rounded-none text-right pointer-events-none"
-      placeholder="Start time"
-      readonly
-      tabindex="-1"
-    />
-    <IconButton
-      class="shrink-0 rounded-l-none border-l-0"
-      name="bi:plus"
-      @click="onAdd"
-    />
-  </div>
-</template>

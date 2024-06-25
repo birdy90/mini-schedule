@@ -1,53 +1,3 @@
-<script lang="ts" setup>
-import type { PlainScheduleDayItem, ScheduleDayItem } from "~/types";
-import { useForm } from "@tanstack/vue-form";
-import type { ModalWindow } from "#components";
-import { zodValidator } from "@tanstack/zod-form-adapter";
-import { z } from "zod";
-import { dateRangeToTimeIndex } from "~/utils";
-import TimeRangeBlock from "~/components/schedule/addModal/TimeRangeBlock.vue";
-
-const emits = defineEmits<{
-  save: [value: ScheduleDayItem];
-}>();
-
-const today = new Date();
-const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-const modalRef = ref<InstanceType<typeof ModalWindow> | null>(null);
-const datesIntervalValue = [
-  new Date(`2024-06-20 ${Math.max(Math.min(today.getHours(), 23), 8)}:00:00`),
-  new Date(
-    `2024-06-20 ${Math.max(Math.min(today.getHours(), 23), 8) + 1}:00:00`,
-  ),
-] as [Date, Date];
-
-const form = useForm<PlainScheduleDayItem, typeof zodValidator>({
-  validatorAdapter: zodValidator,
-  defaultValues: {
-    title: "",
-    timeRange: dateRangeToTimeIndex(datesIntervalValue),
-    regular: true,
-    background: false,
-    day: new Date().getDay() || 7,
-  },
-  onSubmit: async ({ value }) => {
-    emits("save", fromPlainItem(value));
-    modalRef.value?.close();
-    form.reset();
-  },
-});
-
-defineExpose({
-  open() {
-    modalRef.value?.open();
-  },
-  close() {
-    modalRef.value?.close();
-  },
-});
-</script>
-
 <template>
   <ModalWindow ref="modalRef" title="New calendar item">
     <div class="flex flex-col gap-4">
@@ -82,7 +32,7 @@ defineExpose({
           <div class="flex flex-col gap-1">
             <ScheduleTimeline />
             <ScheduleDay
-              :items="[{...data.values, preview: true}]"
+              :items="[{ ...data.values, preview: true }]"
               class="h-14"
             />
           </div>
@@ -91,7 +41,7 @@ defineExpose({
             <template v-slot="{ field }">
               <div>
                 <div class="flex gap-1 sm:gap-2">
-                  <Button
+                  <UiButton
                     v-for="(item, i) in daysOfWeek"
                     :class="[
                       'grow items-center justify-center text-sm',
@@ -102,7 +52,7 @@ defineExpose({
                     @click="() => field.handleChange(i + 1)"
                   >
                     {{ item }}
-                  </Button>
+                  </UiButton>
                 </div>
               </div>
             </template>
@@ -146,7 +96,56 @@ defineExpose({
     </div>
 
     <template v-slot:controls>
-      <Button @click="form.handleSubmit()">Save</Button>
+      <UiButton @click="form.handleSubmit()">Save</UiButton>
     </template>
   </ModalWindow>
 </template>
+
+<script lang="ts" setup>
+import type { PlainScheduleDayItem, ScheduleDayItem } from "~/types";
+import { useForm } from "@tanstack/vue-form";
+import type { ModalWindow } from "#components";
+import { zodValidator } from "@tanstack/zod-form-adapter";
+import { z } from "zod";
+import { dateRangeToTimeIndex } from "~/utils";
+import TimeRangeBlock from "~/components/schedule/addModal/TimeRangeBlock.vue";
+
+const emits = defineEmits<{
+  save: [value: ScheduleDayItem];
+}>();
+
+const today = new Date();
+const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+const modalRef = ref<InstanceType<typeof ModalWindow> | null>(null);
+const datesIntervalValue = [
+  new Date(`2024-06-20 ${Math.max(Math.min(today.getHours(), 23), 8)}:00:00`),
+  new Date(
+    `2024-06-20 ${Math.max(Math.min(today.getHours(), 23), 8) + 1}:00:00`,
+  ),
+] as [Date, Date];
+
+const form = useForm<PlainScheduleDayItem, typeof zodValidator>({
+  validatorAdapter: zodValidator,
+  defaultValues: {
+    title: "",
+    timeRange: dateRangeToTimeIndex(datesIntervalValue),
+    regular: true,
+    background: false,
+    day: new Date().getDay() || 7,
+  },
+  onSubmit: async ({ value }) => {
+    emits("save", fromPlainItem(value));
+    modalRef.value?.close();
+  },
+});
+
+defineExpose({
+  open() {
+    modalRef.value?.open();
+  },
+  close() {
+    modalRef.value?.close();
+  },
+});
+</script>

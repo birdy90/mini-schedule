@@ -1,8 +1,5 @@
-import { useStorage } from "@vueuse/core";
-import type { ScheduleDayItem, DataManager } from "~/types";
+import type { ScheduleDayItem } from "~/types";
 import { sampleData } from "~/utils/data/sample";
-
-const storageItemsKey = "schedule-items";
 
 export function usePocketbaseStorage(): Ref<ScheduleDayItem[]> {
   const scheduleData = ref<ScheduleDayItem[]>([]);

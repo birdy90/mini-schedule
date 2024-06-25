@@ -1,16 +1,18 @@
 // plugins/pocketbase.js
-import PocketBase from 'pocketbase';
+import PocketBase from "pocketbase";
 
 export default defineNuxtPlugin(async () => {
-  const pb = new PocketBase('https://birdy.pockethost.io');
+  const runtimeConfig = useRuntimeConfig();
 
-  const cookie = useCookie('pb_auth', {
-    path:     '/',
-    secure:   true,
-    sameSite: 'strict',
-    httpOnly: true, // change to "true" if you want only server-side access
-    maxAge:   604800,
-  })
+  const pb = new PocketBase(runtimeConfig.public.dbHost);
+
+  const cookie = useCookie(runtimeConfig.public.pbAuthCookie, {
+    path: "/",
+    secure: true,
+    sameSite: "strict",
+    httpOnly: false, // change to "true" if you want only server-side access
+    maxAge: 604800,
+  });
 
   // load the store data from the cookie value
   pb.authStore.save(cookie.value?.token, cookie.value?.model);
@@ -24,14 +26,14 @@ export default defineNuxtPlugin(async () => {
   });
 
   try {
-      // get an up-to-date auth store state by verifying and refreshing the loaded auth model (if any)
-      pb.authStore.isValid && await pb.collection('users').authRefresh();
+    // get an up-to-date auth store state by verifying and refreshing the loaded auth model (if any)
+    pb.authStore.isValid && (await pb.collection("users").authRefresh());
   } catch (_) {
-      // clear the auth store on failed refresh
-      pb.authStore.clear();
+    // clear the auth store on failed refresh
+    pb.authStore.clear();
   }
 
   return {
-    provide: { pb }
-  }
+    provide: { pb },
+  };
 });

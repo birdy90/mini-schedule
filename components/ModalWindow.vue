@@ -1,24 +1,3 @@
-<script setup lang="ts">
-defineProps<{
-  title?: string;
-}>();
-
-const dialogRef = ref<HTMLDialogElement | null>(null);
-
-function open() {
-  dialogRef.value?.showModal();
-}
-
-function close() {
-  dialogRef.value?.close();
-}
-
-defineExpose({
-  open,
-  close,
-});
-</script>
-
 <template>
   <Teleport to="body">
     <dialog
@@ -37,9 +16,33 @@ defineExpose({
         <div class="flex gap-2 justify-end sticky p-4 pt-2 bottom-0 bg-white">
           <slot name="controls" />
 
-          <Button @click="close()">Cancel</Button>
+          <UiButton @click="close()">Cancel</UiButton>
         </div>
       </div>
     </dialog>
   </Teleport>
 </template>
+
+<script setup lang="ts">
+const props = defineProps<{
+  title?: string;
+  visible?: boolean;
+}>();
+
+const dialogRef = ref<HTMLDialogElement | null>(null);
+
+function open() {
+  nextTick(() => {
+    dialogRef.value?.showModal();
+  });
+}
+
+function close() {
+  dialogRef.value?.close();
+}
+
+defineExpose({
+  open,
+  close,
+});
+</script>
