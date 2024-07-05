@@ -8,9 +8,12 @@ import {ActionIcon, Modal} from "@mantine/core";
 import {Week} from "@/components/schedule/week";
 import {useDisclosure} from "@mantine/hooks";
 import {AddModal} from "@/components/schedule/modal/addModal";
+import {useSetAtom} from "jotai";
+import {editedItemAtom} from "@/data/stores";
 
 export default function Home() {
     const [modalOpened, modalActions] = useDisclosure(false);
+    const setEditedItem = useSetAtom(editedItemAtom);
 
     // const store = useModalStore();
 
@@ -28,11 +31,13 @@ export default function Home() {
     // });
 
     function addItemModalShow() {
+        setEditedItem(undefined);
         modalActions.open();
     }
 
     function onAddItem(item: ScheduleDayItem) {
-        // storedItems.value.push(item);
+        setStoredItems([...storedItems, item]);
+        modalActions.close();
     }
 
     async function onLogin() {
@@ -75,7 +80,7 @@ export default function Home() {
                 <div className="text-sm">Grigorii Bederdinov @ 2024</div>
 
                 <Modal opened={modalOpened} onClose={modalActions.close} title="Add New Item">
-                    <AddModal />
+                    <AddModal onSave={onAddItem}/>
                 </Modal>
             </main>
         </>

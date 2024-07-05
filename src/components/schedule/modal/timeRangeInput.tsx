@@ -71,11 +71,13 @@ export const TimeRangeInput = (props: TimeRangeInputProps) => {
                 placeholder="Start time"
                 readOnly
                 tabIndex={-1}
+                leftSectionPointerEvents="all"
                 leftSection={
                     <ActionIcon aria-label="Add item" onClick={onSubtract} variant="light">
                         <BsDash/>
                     </ActionIcon>
                 }
+                rightSectionPointerEvents="all"
                 rightSection={
                     <ActionIcon aria-label="Add item" onClick={onAdd} variant="light">
                         <BsPlus/>
