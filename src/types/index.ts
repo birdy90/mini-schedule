@@ -1,2 +1,3 @@
-export * from './Data';
-export * from './Schedule';
+export * from "./Data";
+export * from "./Modals";
+export * from "./Schedule";

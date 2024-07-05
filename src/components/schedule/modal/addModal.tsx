@@ -1,6 +1,6 @@
 import { TimeRangeBlock } from "@/components/schedule/modal/timeRangeBlock";
 import { useForm } from "@tanstack/react-form";
-import { PlainScheduleDayItem, ScheduleDayItem } from "@/types";
+import { BaseModalProps, PlainScheduleDayItem } from "@/types";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { dateRangeToTimeIndex, fromPlainItem, toPlainItem } from "@/utils";
 import { z } from "zod";
@@ -13,17 +13,16 @@ import {
   Timeline,
 } from "@mantine/core";
 import { Day } from "@/components/schedule/day";
-import { useAtom } from "jotai";
-import { editedItemAtom } from "@/data/stores";
 import { ChangeEvent } from "react";
 import { BsTrash } from "@react-icons/all-files/bs/BsTrash";
+import { useItemsStore } from "@/data/store";
 
-interface AddModalProps {
-  onSave?: (item: ScheduleDayItem) => void;
-}
-
-export const AddModal = (props: AddModalProps) => {
-  const [editedItem, setEditedItem] = useAtom(editedItemAtom);
+export const AddModal = (props: BaseModalProps) => {
+  const editedItem = useItemsStore((state) => state.editedItem);
+  const clearEditedItem = useItemsStore((state) => state.clearEditedItem);
+  const addItem = useItemsStore((state) => state.addItem);
+  const updateItem = useItemsStore((state) => state.updateItem);
+  const deleteItem = useItemsStore((state) => state.deleteItem);
   const today = new Date();
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -33,6 +32,13 @@ export const AddModal = (props: AddModalProps) => {
       `2024-06-20 ${Math.max(Math.min(today.getHours(), 23), 8) + 1}:00:00`,
     ),
   ] as [Date, Date];
+
+  const handleDeletion = () => {
+    if (!editedItem) return;
+    deleteItem(editedItem);
+    clearEditedItem();
+    props.actions.close();
+  };
 
   const form = useForm({
     validatorAdapter: zodValidator(),
@@ -46,8 +52,14 @@ export const AddModal = (props: AddModalProps) => {
           day: new Date().getDay() || 7,
         } as PlainScheduleDayItem),
     onSubmit: async ({ value }) => {
-      setEditedItem(undefined);
-      props.onSave?.(fromPlainItem(value));
+      if (value.id) {
+        updateItem(fromPlainItem(value));
+      } else {
+        addItem(fromPlainItem(value));
+      }
+
+      clearEditedItem();
+      props.actions.close();
     },
   });
 
@@ -96,6 +108,7 @@ export const AddModal = (props: AddModalProps) => {
                   <SegmentedControl
                     fullWidth
                     color="main"
+                    defaultValue={daysOfWeek[data.values.day - 1]}
                     data={daysOfWeek}
                     onChange={(name: string) => {
                       field.handleChange(
@@ -152,7 +165,7 @@ export const AddModal = (props: AddModalProps) => {
             size={"lg"}
             color={"red"}
             aria-label="Delete item"
-            onClick={form.handleSubmit}
+            onClick={handleDeletion}
           >
             <BsTrash />
           </ActionIcon>

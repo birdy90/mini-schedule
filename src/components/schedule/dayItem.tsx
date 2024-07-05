@@ -2,11 +2,10 @@ import { cn } from "@/utils/cn";
 import { PlainScheduleDayItem, ScheduleDayItem } from "@/types";
 import { calendarSettings } from "@/data";
 import { Modal } from "@mantine/core";
-import { editedItemAtom } from "@/data/stores";
 import { AddModal } from "@/components/schedule/modal/addModal";
 import { useDisclosure } from "@mantine/hooks";
 import { fromPlainItem } from "@/utils";
-import { useSetAtom } from "jotai";
+import { useItemsStore } from "@/data/store";
 
 interface DayItemProps {
   item: PlainScheduleDayItem;
@@ -15,7 +14,7 @@ interface DayItemProps {
 
 export const DayItem = (props: DayItemProps) => {
   const [modalOpened, modalActions] = useDisclosure(false);
-  const setEditedItem = useSetAtom(editedItemAtom);
+  const setEditedItem = useItemsStore((state) => state.setEditedItem);
 
   const item = props.item;
   const itemStartTime = item.timeRange[0];
@@ -81,7 +80,7 @@ export const DayItem = (props: DayItemProps) => {
         onClose={modalActions.close}
         title="Add New Item"
       >
-        <AddModal onSave={onEditSave} />
+        <AddModal actions={modalActions} />
       </Modal>
     </div>
   );

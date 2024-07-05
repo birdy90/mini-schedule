@@ -1,4 +1,5 @@
 interface ScheduleDayItemBase {
+  id?: string;
   title: string;
   regular: boolean;
   background: boolean;
