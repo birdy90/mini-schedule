@@ -5,3 +5,9 @@ export interface BaseModalProps {
     readonly toggle: () => void;
   };
 }
+
+export interface AlertObject {
+  title: string;
+  description?: string;
+  type?: "error" | "info";
+}

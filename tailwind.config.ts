@@ -1,4 +1,4 @@
-import type {Config} from "tailwindcss";
+import type { Config } from "tailwindcss";
 import colors from "tailwindcss/colors";
 
 const config: Config = {
@@ -10,8 +10,8 @@ const config: Config = {
   ],
   theme: {
     colors: {
-      main: colors.emerald,
-      secondary: colors.orange,
+      main: colors.purple,
+      secondary: colors.rose,
       gray: colors.gray,
       white: colors.white,
       black: colors.black,

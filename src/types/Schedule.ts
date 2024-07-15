@@ -5,12 +5,23 @@ interface ScheduleDayItemBase {
   background: boolean;
 }
 
+export interface ScheduleDayItemPayload extends ScheduleDayItemBase {
+  startDate: string;
+  endDate: string;
+}
+
 export interface ScheduleDayItem extends ScheduleDayItemBase {
   startDate: Date;
   endDate: Date;
 }
 
-export interface PlainScheduleDayItem extends ScheduleDayItemBase {
+export interface ScheduleDayItemPayload extends ScheduleDayItemBase {
+  startDate: string;
+  endDate: string;
+  owner: string;
+}
+
+export interface SimplifiedScheduleDayItem extends ScheduleDayItemBase {
   timeRange: [number, number];
   day: number;
   preview?: boolean;
@@ -21,7 +32,7 @@ export interface WeekProps {
 }
 
 export interface ScheduleItemProps {
-  item: PlainScheduleDayItem;
+  item: SimplifiedScheduleDayItem;
   timeInterval: [number, number];
   preview?: boolean;
 }
@@ -33,5 +44,5 @@ export interface DayDividerProps {
 
 export interface DayProps {
   index?: number;
-  items?: PlainScheduleDayItem[];
+  items?: SimplifiedScheduleDayItem[];
 }

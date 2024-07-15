@@ -7,6 +7,7 @@ import {
 } from "@mantine/core";
 import { PropsWithChildren } from "react";
 import config from "../../tailwind.config";
+import { PocketProvider } from "@/components/providers/PocketContext";
 
 const mainColor: MantineColorsTuple = Object.values<string>(
   (config.theme?.colors as any).main,
@@ -33,5 +34,9 @@ const theme = createTheme({
 });
 
 export function Providers({ children }: PropsWithChildren) {
-  return <MantineProvider theme={theme}>{children}</MantineProvider>;
+  return (
+    <PocketProvider>
+      <MantineProvider theme={theme}>{children}</MantineProvider>
+    </PocketProvider>
+  );
 }

@@ -1,4 +1,5 @@
-import { ScheduleDayItem } from "@/types";
+import { ScheduleDayItem, ScheduleDayItemPayload } from "@/types";
+import { deserializePayload } from "@/utils";
 
 const storageItemsKey = "schedule-items";
 
@@ -9,21 +10,12 @@ interface ListStorageHandler {
 
 export const localStorageHandler: ListStorageHandler = {
   get() {
-    return deserializeItems(localStorage.getItem(storageItemsKey) ?? "");
+    const itemsString = localStorage.getItem(storageItemsKey) ?? "";
+    if (!itemsString) return [] as ScheduleDayItem[];
+    const parsedItem = JSON.parse(itemsString) as ScheduleDayItemPayload[];
+    return parsedItem.map(deserializePayload);
   },
   set(items) {
     localStorage.setItem(storageItemsKey, JSON.stringify(items));
   },
 };
-
-function deserializeItems(v: string): ScheduleDayItem[] {
-  if (!v) return [];
-  const parsed = JSON.parse(v) as ScheduleDayItem[];
-  return [
-    ...parsed.map((t) => ({
-      ...t,
-      startDate: new Date(t.startDate),
-      endDate: new Date(t.endDate),
-    })),
-  ];
-}

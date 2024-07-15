@@ -1,87 +1,113 @@
 import { cn } from "@/utils/cn";
-import { PlainScheduleDayItem, ScheduleDayItem } from "@/types";
-import { calendarSettings } from "@/data";
+import { SimplifiedScheduleDayItem } from "@/types";
 import { Modal } from "@mantine/core";
 import { AddModal } from "@/components/schedule/modal/addModal";
 import { useDisclosure } from "@mantine/hooks";
-import { fromPlainItem } from "@/utils";
-import { useItemsStore } from "@/data/store";
+import {
+  fromSimplifiedItem,
+  timeIndexToOffsetPercentage,
+} from "@/utils/schedule";
+import { useDraggingStore, useItemsStore } from "@/data/store";
+import { CSSProperties, forwardRef, PointerEvent, useRef } from "react";
+import { DayItemHandle } from "@/components/schedule/dayItemHandle";
+import { mergedRef } from "@/utils/common";
+import { useIsDragging } from "@/utils/hooks/useIsDragging";
 
 interface DayItemProps {
-  item: PlainScheduleDayItem;
-  preview?: boolean;
+  item: SimplifiedScheduleDayItem;
+  className?: string;
+  style?: CSSProperties;
+  isDragged?: boolean;
 }
 
-export const DayItem = (props: DayItemProps) => {
-  const [modalOpened, modalActions] = useDisclosure(false);
-  const setEditedItem = useItemsStore((state) => state.setEditedItem);
+export const DayItem = forwardRef<HTMLDivElement, DayItemProps>(
+  (props, ref) => {
+    const myRef = useRef<HTMLDivElement>(null);
+    const [modalOpened, modalActions] = useDisclosure(false);
+    const setEditedItem = useItemsStore((state) => state.setEditedItem);
+    const startDragging = useDraggingStore((state) => state.startDragging);
+    const draggedItem = useDraggingStore((state) => state.draggedItem);
+    const [isMouseDown, setIsMouseDown] = useIsDragging();
 
-  const item = props.item;
-  const itemStartTime = item.timeRange[0];
-  const itemEndTime = item.timeRange[1];
+    const item = props.item;
+    const itemStartTime = item.timeRange[0];
+    const itemEndTime = item.timeRange[1];
 
-  const dayDuration = calendarSettings.endTime - calendarSettings.startTime;
-  const itemDuration = itemEndTime - itemStartTime;
-  const itemWidthPercentage = (itemDuration / dayDuration) * 100;
-  const itemOffset = itemStartTime - calendarSettings.startTime;
-  const itemOffsetPercentage = (itemOffset / dayDuration) * 100;
+    const itemDuration = itemEndTime - itemStartTime;
+    const startOffsetPercentage = timeIndexToOffsetPercentage(itemStartTime);
+    const endOffsetPercentage = timeIndexToOffsetPercentage(itemEndTime);
+    const itemWidthPercentage = endOffsetPercentage - startOffsetPercentage;
 
-  const previewItemClasses = cn(
-    "border-2 top-0 bottom-0",
-    item.regular
-      ? "border-main-700 shadow-main-700/40"
-      : "border-secondary-700 shadow-secondary-700/40",
-  );
+    const itemClasses = cn(
+      "rounded-md select-none cursor-pointer",
+      "absolute top-0 border-2 p-0.5",
+      "flex justify-center text-xs tracking-wide",
+      item.regular ? "text-main-600" : "text-secondary-600",
+      item.background
+        ? "top-0 -bottom-0 items-center z-0 outline outline-dashed outline-1"
+        : "text-white shadow-xl top-0 bottom-0 items-center z-10",
+      item.regular
+        ? item.background
+          ? "bg-main-50 border-gray-100 hover:border-gray-300"
+          : "border-main-700/10 hover:border-main-800 bg-main-700/80 shadow-main-700/40"
+        : item.background
+          ? "bg-secondary-50 border-gray-100 hover:border-gray-300"
+          : "border-secondary-700/10 hover:border-secondary-800 bg-secondary-700/80 shadow-secondary-700/40",
+      props.className,
+    );
 
-  const commonItemClasses = cn(
-    "p-0.5 flex justify-center text-xs",
-    !item.preview && "cursor-pointer",
-    item.regular ? "text-main-500" : "text-secondary-500",
-    item.background
-      ? "border-gray-200 top-0 items-start"
-      : "text-white shadow-lg top-5 items-center",
-    item.regular
-      ? item.background
-        ? "bg-main-50 border"
-        : "bg-main-600 shadow-main-700/40"
-      : item.background
-        ? "bg-secondary-50 border"
-        : "bg-secondary-600 shadow-secondary-700/40",
-  );
+    function onEditOpen() {
+      setEditedItem(fromSimplifiedItem(item));
+      modalActions.open();
+    }
 
-  const itemClasses = cn(
-    "rounded absolute bottom-0 select-none",
-    item.preview ? previewItemClasses : commonItemClasses,
-  );
+    function onPointerDown() {
+      setIsMouseDown(true);
+    }
 
-  function onEditOpen() {
-    if (item.preview) return;
-    setEditedItem(fromPlainItem(item));
-    modalActions.open();
-  }
+    function onPointerMove(e: PointerEvent<HTMLDivElement>) {
+      if (!isMouseDown || !!draggedItem) return;
+      const rect = myRef.current?.getBoundingClientRect() ?? { x: 0, y: 0 };
+      const coords = { x: e.clientX - rect.x, y: e.clientY - rect.y };
+      startDragging("item", props.item, coords);
+    }
 
-  function onEditSave(item: ScheduleDayItem) {}
-
-  return (
-    <div
-      className={itemClasses}
-      onDoubleClick={onEditOpen}
-      style={{
-        width: `calc(${itemWidthPercentage}% - ${0.25}rem)`,
-        left: `calc(${itemOffsetPercentage}% + ${0.125}rem)`,
-      }}
-    >
-      <span className={cn(itemDuration < 1 && "-rotate-90", "leading-none")}>
-        {item.preview ? "" : item.title}
-      </span>
-
-      <Modal
-        opened={modalOpened}
-        onClose={modalActions.close}
-        title="Add New Item"
+    return (
+      <div
+        ref={mergedRef<HTMLDivElement>(ref, myRef)}
+        className={itemClasses}
+        onDoubleClick={onEditOpen}
+        onPointerMove={onPointerMove}
+        onPointerDown={onPointerDown}
+        style={{
+          width: `calc(${itemWidthPercentage}% - ${0.25}rem)`,
+          marginLeft: `calc(${startOffsetPercentage}% + ${0.125}rem)`,
+          ...props.style,
+        }}
+        aria-label={`${item.title} at ${item.timeRange[0]} o'clock`}
       >
-        <AddModal actions={modalActions} />
-      </Modal>
-    </div>
-  );
-};
+        <DayItemHandle isRegular={item.regular} item={item} side={"start"} />
+        <DayItemHandle isRegular={item.regular} item={item} side={"end"} />
+
+        <div
+          className={cn(
+            itemDuration <= 1 && "-rotate-90",
+            itemDuration > 1 && itemDuration <= 2 && "-rotate-90 sm:rotate-0",
+            "text-center font-bold scale-90",
+            "pointer-events-none",
+          )}
+        >
+          {item.title}
+        </div>
+
+        <Modal
+          opened={modalOpened}
+          onClose={modalActions.close}
+          title="Add New Item"
+        >
+          <AddModal actions={modalActions} />
+        </Modal>
+      </div>
+    );
+  },
+);

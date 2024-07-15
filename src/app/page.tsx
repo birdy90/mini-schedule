@@ -1,105 +1,104 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { BiPlus } from "@react-icons/all-files/bi/BiPlus";
-import { ActionIcon, Button, Modal } from "@mantine/core";
+import { useEffect, useTransition } from "react";
+import { ActionIcon, Button, LoadingOverlay } from "@mantine/core";
 import { Week } from "@/components/schedule/week";
-import { useDisclosure } from "@mantine/hooks";
-import { AddModal } from "@/components/schedule/modal/addModal";
 import { useItemsStore } from "@/data/store";
-import { sampleData } from "@/data";
+import { usePocket } from "@/components/providers/PocketContext";
+import { AddItemButton } from "@/components/mainPage/addItemButton";
+import { FillWithSampleDataDialog } from "@/components/mainPage/fillWithSampleDataDialog";
+import { MdOutlineCalendarMonth } from "react-icons/md";
+import { FaGoogle } from "react-icons/fa";
+import Link from "next/link";
 
 export default function Home() {
-  const [modalOpened, modalActions] = useDisclosure(false);
+  const [isAuthPending, startAuthTransition] = useTransition();
 
-  // const store = useModalStore();
+  const { user, initialized, logout, loginWithProvider } = usePocket();
+  const isAuthorized = !!user;
 
-  // const { $pb } = useNuxtApp();
-
-  // const authData = useState<Pick<BaseAuthStore, "token" | "model">>({
-  //   token: "",
-  //   model: null,
-  // });
-  const [initialized, setInitialized] = useState(false);
-  const items = useItemsStore((state) => state.itemsList);
-  const setEditedItem = useItemsStore((state) => state.setEditedItem);
+  const items = useItemsStore((state) =>
+    state.itemsList.filter(
+      (t) =>
+        t.regular ||
+        t.endDate.getTime() >=
+          Math.floor(new Date().getTime() / (24 * 60 * 60 * 1000)),
+    ),
+  );
   const initializeItems = useItemsStore((state) => state.initializeItems);
   const fillItems = useItemsStore((state) => state.fillItems);
 
-  // const isAuthorized = computed(() => {
-  //   return authData.value && authData.value.token && authData.value.model;
-  // });
-
-  function addItemModalShow() {
-    setEditedItem(undefined);
-    modalActions.open();
-  }
-
-  function fillWithSampleData() {
-    fillItems(sampleData);
-  }
-
   async function onLogin() {
-    // await $pb.collection("users").authWithOAuth2({ provider: "google" });
+    startAuthTransition(async () => {
+      await loginWithProvider("google");
+    });
   }
 
   async function onLogout() {
-    // $pb.authStore.clear();
+    fillItems([]);
+    logout();
   }
 
   useEffect(() => {
-    setInitialized(true);
     initializeItems();
-
-    // authData.value = { token: $pb.authStore.token, model: $pb.authStore.model };
-    //
-    // $pb.authStore.onChange((token, model) => {
-    //   authData.value = { token, model };
-    // });
   }, []);
 
   return (
     <>
-      <main className="flex flex-col h-dvh p-2 gap-2 text-sm">
+      <main className="flex flex-col h-dvh p-2 gap-2 text-sm mx-auto max-w-7xl">
         <div className="flex justify-between items-center">
           <div className="flex justify-center items-center gap-2">
+            <MdOutlineCalendarMonth
+              className={"size-6 aspect-square text-main-800"}
+            />
             <h1 className="h2 text-center">Mini Schedule</h1>
-            {initialized && (
-              <>
-                <ActionIcon aria-label="Add item" onClick={addItemModalShow}>
-                  <BiPlus />
-                </ActionIcon>
-
-                {items.length === 0 && (
-                  <Button
-                    size={"xs"}
-                    variant={"light"}
-                    onClick={fillWithSampleData}
-                  >
-                    Fill with sample data
-                  </Button>
-                )}
-              </>
-            )}
+            <AddItemButton />
           </div>
 
-          {/*    <template v-if="initialized">*/}
-          {/*      <UiButton v-if="isAuthorized" onClick="onLogout">Logout</UiButton>*/}
-          {/*    <UiButton v-else onClick="onLogin">Login</UiButton>*/}
-          {/*</template>*/}
+          {initialized && (
+            <div className={"flex items-center gap-2"}>
+              <div>
+                {isAuthorized ? user?.name || user?.email : "Login with:"}
+              </div>
+              {isAuthorized ? (
+                <Button
+                  key={"logout"}
+                  size={"xs"}
+                  onClick={onLogout}
+                  loading={isAuthPending}
+                >
+                  Logout
+                </Button>
+              ) : (
+                <ActionIcon
+                  key={"login"}
+                  onClick={onLogin}
+                  loading={isAuthPending}
+                >
+                  <FaGoogle />
+                </ActionIcon>
+              )}
+            </div>
+          )}
         </div>
 
-        <Week items={items} />
+        <div className={"relative grow"}>
+          <LoadingOverlay
+            visible={!initialized || isAuthPending}
+            loaderProps={{ children: "Loading..." }}
+          />
 
-        <div className="text-sm">Grigorii Bederdinov @ 2024</div>
+          <Week items={initialized ? items : []} />
 
-        <Modal
-          opened={modalOpened}
-          onClose={modalActions.close}
-          title="Add New Item"
-        >
-          <AddModal actions={modalActions} />
-        </Modal>
+          <FillWithSampleDataDialog />
+        </div>
+
+        <div className="text-sm">
+          <Link href={"https://bederdinov.me"} target={"_blank"}>
+            Grigorii Bederdinov
+          </Link>{" "}
+          @ 2024
+        </div>
       </main>
     </>
   );

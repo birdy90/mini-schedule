@@ -1,8 +1,18 @@
 import { TimeRangeBlock } from "@/components/schedule/modal/timeRangeBlock";
 import { useForm } from "@tanstack/react-form";
-import { BaseModalProps, PlainScheduleDayItem } from "@/types";
+import {
+  BaseModalProps,
+  ScheduleDayItemPayload,
+  SimplifiedScheduleDayItem,
+} from "@/types";
 import { zodValidator } from "@tanstack/zod-form-adapter";
-import { dateRangeToTimeIndex, fromPlainItem, toPlainItem } from "@/utils";
+import {
+  dateRangeToTimeIndex,
+  deserializePayload,
+  fromSimplifiedItem,
+  preparePayload,
+  toSimplifiedItem,
+} from "@/utils/schedule";
 import { z } from "zod";
 import {
   ActionIcon,
@@ -13,18 +23,21 @@ import {
   Timeline,
 } from "@mantine/core";
 import { Day } from "@/components/schedule/day";
-import { ChangeEvent } from "react";
-import { BsTrash } from "@react-icons/all-files/bs/BsTrash";
+import { ChangeEvent, useState } from "react";
 import { useItemsStore } from "@/data/store";
+import { usePocket } from "@/components/providers/PocketContext";
+import { daysOfWeek } from "@/data";
+import { BsTrash } from "react-icons/bs";
 
 export const AddModal = (props: BaseModalProps) => {
+  const { pb, user } = usePocket();
+  const [isApiPending, setApiTransition] = useState(false);
   const editedItem = useItemsStore((state) => state.editedItem);
   const clearEditedItem = useItemsStore((state) => state.clearEditedItem);
   const addItem = useItemsStore((state) => state.addItem);
   const updateItem = useItemsStore((state) => state.updateItem);
   const deleteItem = useItemsStore((state) => state.deleteItem);
   const today = new Date();
-  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   const datesIntervalValue = [
     new Date(`2024-06-20 ${Math.max(Math.min(today.getHours(), 23), 8)}:00:00`),
@@ -33,35 +46,72 @@ export const AddModal = (props: BaseModalProps) => {
     ),
   ] as [Date, Date];
 
-  const handleDeletion = () => {
-    if (!editedItem) return;
-    deleteItem(editedItem);
-    clearEditedItem();
-    props.actions.close();
-  };
-
   const form = useForm({
     validatorAdapter: zodValidator(),
     defaultValues: editedItem
-      ? toPlainItem(editedItem)
+      ? toSimplifiedItem(editedItem)
       : ({
           title: "",
           timeRange: dateRangeToTimeIndex(datesIntervalValue),
           regular: true,
           background: false,
           day: new Date().getDay() || 7,
-        } as PlainScheduleDayItem),
-    onSubmit: async ({ value }) => {
-      if (value.id) {
-        updateItem(fromPlainItem(value));
-      } else {
-        addItem(fromPlainItem(value));
-      }
+        } as SimplifiedScheduleDayItem),
+    onSubmit: ({ value }) => {
+      setApiTransition(true);
 
-      clearEditedItem();
-      props.actions.close();
+      try {
+        const id = value.id;
+
+        const data = fromSimplifiedItem(value);
+        const payload: ScheduleDayItemPayload = preparePayload(
+          data,
+          pb?.authStore.model,
+        );
+
+        if (id === undefined) {
+          const temporalId = "temp-id";
+          if (user) {
+            pb
+              ?.collection("miniSchedule")
+              .create<ScheduleDayItemPayload>(payload)
+              .then((newItem) => {
+                updateItem(temporalId, deserializePayload(newItem));
+              });
+          }
+          addItem({ ...data, id: temporalId });
+        } else {
+          if (user) {
+            pb?.collection("miniSchedule").update(id, payload);
+          }
+          updateItem(data.id, data);
+        }
+
+        clearEditedItem();
+      } catch {
+        setApiTransition(false);
+      } finally {
+        props.actions.close();
+      }
     },
   });
+
+  async function handleDeletion() {
+    if (!editedItem || !editedItem.id) return;
+
+    setApiTransition(true);
+
+    try {
+      if (user) {
+        await pb?.collection("miniSchedule").delete(editedItem.id);
+      }
+      deleteItem(editedItem);
+    } catch {
+      setApiTransition(false);
+    } finally {
+      props.actions.close();
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -159,12 +209,15 @@ export const AddModal = (props: BaseModalProps) => {
       />
 
       <div className={"flex justify-between"}>
-        <Button onClick={form.handleSubmit}>Save</Button>
+        <Button onClick={form.handleSubmit} loading={isApiPending}>
+          Save
+        </Button>
         {editedItem && (
           <ActionIcon
             size={"lg"}
             color={"red"}
             aria-label="Delete item"
+            loading={isApiPending}
             onClick={handleDeletion}
           >
             <BsTrash />

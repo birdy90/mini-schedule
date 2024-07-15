@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { ScheduleDayItem } from "@/types";
 import { localStorageHandler } from "@/data/store/storageHelpers";
-import { v7 as createUUID } from "uuid";
+import { v4 as createUUID } from "uuid";
 
 interface ItemsStoreState {
   itemsList: ScheduleDayItem[];
@@ -10,18 +10,15 @@ interface ItemsStoreState {
   fillItems: (data: ScheduleDayItem[]) => void;
   initializeItems: () => void;
   addItem: (item: ScheduleDayItem) => void;
-  updateItem: (item: ScheduleDayItem) => void;
+  updateItem: (id: string | undefined, newItem: ScheduleDayItem) => void;
   deleteItem: (item: ScheduleDayItem) => void;
 
   setEditedItem: (item?: ScheduleDayItem) => void;
   clearEditedItem: () => void;
 }
 
-const findItemIndex = (
-  list: ScheduleDayItem[],
-  item: ScheduleDayItem,
-): number => {
-  return list.findIndex((t) => t.id === item.id);
+const findItemIndex = (list: ScheduleDayItem[], itemId: string): number => {
+  return list.findIndex((t) => t.id === itemId);
 };
 
 export const useItemsStore = create<ItemsStoreState>()((set) => ({
@@ -38,6 +35,7 @@ export const useItemsStore = create<ItemsStoreState>()((set) => ({
     localStorageHandler.set(itemsList);
     set(() => ({ itemsList }));
   },
+
   initializeItems: () => {
     const itemsList = localStorageHandler.get();
     set(() => ({ itemsList }));
@@ -56,20 +54,24 @@ export const useItemsStore = create<ItemsStoreState>()((set) => ({
       return { itemsList };
     });
   },
-  updateItem: (item: ScheduleDayItem) => {
+  updateItem: (id, newItem) => {
     set((state) => {
-      const itemIndex = findItemIndex(state.itemsList, item);
+      if (!id) return {};
+
+      const itemIndex = findItemIndex(state.itemsList, id);
       if (itemIndex === -1) return {};
 
       const itemsList = [...state.itemsList];
-      itemsList[itemIndex] = item;
+      itemsList[itemIndex] = newItem;
       localStorageHandler.set(itemsList);
       return { itemsList };
     });
   },
-  deleteItem: (item: ScheduleDayItem) => {
+  deleteItem: (item) => {
     set((state) => {
-      const itemIndex = findItemIndex(state.itemsList, item);
+      if (!item.id) return {};
+
+      const itemIndex = findItemIndex(state.itemsList, item.id);
       if (itemIndex === -1) return {};
 
       const itemsList = [...state.itemsList];
