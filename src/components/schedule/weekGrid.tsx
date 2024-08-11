@@ -15,3 +15,4 @@ export const WeekGrid = forwardRef<HTMLDivElement, WeekGridProps>(
     );
   },
 );
+WeekGrid.displayName = "WeekGrid";

@@ -9,30 +9,41 @@ export const TimeRow = () => {
   };
 
   return (
-    <div
-      className="grid text-xs relative px-2"
-      style={{
-        gridTemplateColumns: `repeat(${calendarSettings.dividerStepsCount}, 1fr)`,
-      }}
-    >
-      {Array(calendarSettings.dividerStepsCount)
-        .fill(0)
-        .map((_, i) => (
-          <div key={i} className="relative flex">
-            <div
-              className={cn(
-                "absolute -translate-x-1/2",
-                i === 0 && "relative -translate-x-2",
-              )}
-            >
-              {timeString(i)}
-            </div>
+    <div className={"flex flex-col"}>
+      <div
+        className="grid text-xs relative px-2"
+        style={{
+          gridTemplateColumns: `repeat(${calendarSettings.dividerStepsCount}, 1fr)`,
+        }}
+      >
+        {Array(calendarSettings.dividerStepsCount)
+          .fill(0)
+          .map((_, i) => (
+            <div key={i} className="relative flex">
+              <div
+                className={cn(
+                  "absolute -translate-x-1/2",
+                  i === 0 && "relative -translate-x-2",
+                )}
+              >
+                {timeString(i)}
+              </div>
 
-            {i === calendarSettings.dividerStepsCount - 1 && (
-              <div className="absolute -right-2">{timeString(i + 1)}</div>
-            )}
-          </div>
-        ))}
+              {i === calendarSettings.dividerStepsCount - 1 && (
+                <div className="absolute -right-2">{timeString(i + 1)}</div>
+              )}
+            </div>
+          ))}
+      </div>
+      <div className={"h-2 flex justify-between pl-1 pr-[3px] "}>
+        {Array(calendarSettings.endTime - calendarSettings.startTime + 1)
+          .fill(0)
+          .map((_, i) => {
+            return (
+              <div key={i} className={"border-r border-gray-300 h-full"} />
+            );
+          })}
+      </div>
     </div>
   );
 };

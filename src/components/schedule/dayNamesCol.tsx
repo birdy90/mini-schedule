@@ -2,23 +2,20 @@ import { calendarSettings, daysOfWeek } from "@/data";
 import { cn } from "@/utils/cn";
 
 export const DayNamesCol = () => {
-  const timeString = (index: number): string => {
-    const hour =
-      index * calendarSettings.dayDividerStep + calendarSettings.startTime;
-    return `${hour % 12 || 12}${hour < 12 || hour === 24 ? "am" : "pm"}`;
-  };
-
   return (
     <div
-      className="flex flex-col gap-4 text-xs size-full"
+      className={cn("flex flex-col gap-4 text-xs size-full")}
       style={{
         gridTemplateColumns: `repeat(${calendarSettings.dividerStepsCount}, 1fr)`,
       }}
     >
-      {daysOfWeek.map((day) => (
+      {daysOfWeek.map((day, index) => (
         <div
           key={day}
-          className="flex flex-col items-center justify-center grow"
+          className={cn(
+            "flex flex-col items-center justify-center grow",
+            index >= 5 && "text-secondary-700",
+          )}
         >
           <div className={cn("-rotate-90")}>{day}</div>
         </div>

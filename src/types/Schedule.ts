@@ -21,8 +21,10 @@ export interface ScheduleDayItemPayload extends ScheduleDayItemBase {
   owner: string;
 }
 
+export type ItemTimeRange = [number, number];
+
 export interface SimplifiedScheduleDayItem extends ScheduleDayItemBase {
-  timeRange: [number, number];
+  timeRange: ItemTimeRange;
   day: number;
   preview?: boolean;
 }
@@ -33,13 +35,13 @@ export interface WeekProps {
 
 export interface ScheduleItemProps {
   item: SimplifiedScheduleDayItem;
-  timeInterval: [number, number];
+  timeInterval: ItemTimeRange;
   preview?: boolean;
 }
 
 export interface DayDividerProps {
   index: number;
-  timeInterval: [number, number];
+  timeInterval: ItemTimeRange;
 }
 
 export interface DayProps {

@@ -1,5 +1,5 @@
 import { FormState } from "@tanstack/form-core";
-import { SimplifiedScheduleDayItem } from "@/types";
+import { ItemTimeRange, SimplifiedScheduleDayItem } from "@/types";
 import { ActionIcon, Input } from "@mantine/core";
 import { calendarSettings } from "@/data";
 import { timeIndexToTimeString } from "@/utils/schedule";
@@ -31,10 +31,7 @@ export const TimeRangeInput = (props: TimeRangeInputProps) => {
   }
 
   function handleChange(operation: (a: number, b: number) => number) {
-    const newRange: [number, number] = [...props.field.state.value] as [
-      number,
-      number,
-    ];
+    const newRange = [...props.field.state.value] as ItemTimeRange;
 
     newRange[props.index] = calculateNewPos(operation, newRange[props.index]);
     if (isOutOfRange(newRange[props.index])) return;

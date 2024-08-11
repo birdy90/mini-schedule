@@ -39,7 +39,7 @@ export const Week = (props: WeekProps) => {
   return (
     <div
       className={
-        "grid grid-cols-[1.5rem_1fr] grid-rows-[1.5rem_1fr] size-full max-h-[1000px]"
+        "grid grid-cols-[1.5rem_1fr] grid-rows-[1.75rem_1fr] size-full max-h-[1000px]"
       }
     >
       <div />

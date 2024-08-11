@@ -25,8 +25,7 @@ export const DayItem = forwardRef<HTMLDivElement, DayItemProps>(
     const myRef = useRef<HTMLDivElement>(null);
     const [modalOpened, modalActions] = useDisclosure(false);
     const setEditedItem = useItemsStore((state) => state.setEditedItem);
-    const startDragging = useDraggingStore((state) => state.startDragging);
-    const draggedItem = useDraggingStore((state) => state.draggedItem);
+    const { startDragging, draggedItem, stopDragging } = useDraggingStore();
     const [isMouseDown, setIsMouseDown] = useIsDragging();
 
     const item = props.item;
@@ -57,6 +56,7 @@ export const DayItem = forwardRef<HTMLDivElement, DayItemProps>(
     );
 
     function onEditOpen() {
+      stopDragging();
       setEditedItem(fromSimplifiedItem(item));
       modalActions.open();
     }
@@ -111,3 +111,4 @@ export const DayItem = forwardRef<HTMLDivElement, DayItemProps>(
     );
   },
 );
+DayItem.displayName = "DayItem";

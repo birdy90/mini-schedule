@@ -41,7 +41,7 @@ export default function Home() {
 
   useEffect(() => {
     initializeItems();
-  }, []);
+  }, [initializeItems]);
 
   return (
     <>
@@ -51,7 +51,7 @@ export default function Home() {
             <MdOutlineCalendarMonth
               className={"size-6 aspect-square text-main-800"}
             />
-            <h1 className="h2 text-center">Mini Schedule</h1>
+            <h1 className="h2 hidden sm:block text-center">Mini Schedule</h1>
             <AddItemButton />
           </div>
 

@@ -10,3 +10,4 @@ dist
 .idea
 .next
 __nuxt
+*storybook.log

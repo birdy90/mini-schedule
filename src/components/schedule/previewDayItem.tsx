@@ -26,6 +26,13 @@ export const PreviewDayItem = (props: DayItemProps) => {
     item.regular
       ? "border-main-700 shadow-main-700/40"
       : "border-secondary-700 shadow-secondary-700/40",
+    item.regular
+      ? item.background
+        ? "bg-main-100 border-main-400 hover:border-gray-300"
+        : "hover:border-main-800 bg-main-700/80 shadow-main-700/40"
+      : item.background
+        ? "bg-secondary-100 border-secondary-400 hover:border-gray-300"
+        : "hover:border-secondary-800 bg-secondary-700/80 shadow-secondary-700/40",
   );
 
   return (

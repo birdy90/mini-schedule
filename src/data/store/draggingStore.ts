@@ -5,11 +5,12 @@ export type HandleType = "start" | "end" | "item";
 type Coords = { x: number; y: number };
 
 interface DraggingStoreState {
+  canDrag: boolean;
   draggedItem?: SimplifiedScheduleDayItem;
   positionWithinItem?: Coords;
   draggedHandle?: HandleType;
 
-  updateDraggingItem(item: SimplifiedScheduleDayItem): void;
+  updateDraggingItem(item: Partial<SimplifiedScheduleDayItem>): void;
 
   startDragging(
     handle: HandleType,
@@ -18,16 +19,24 @@ interface DraggingStoreState {
   ): void;
 
   stopDragging(): void;
+
+  allowDragging(): void;
+
+  cancelDragging(): void;
 }
 
 export const useDraggingStore = create<DraggingStoreState>()((set) => ({
+  canDrag: true,
   draggedItem: undefined,
   positionWithinItem: undefined,
   draggedHandle: undefined,
 
   updateDraggingItem(draggedItem) {
-    set(() => ({
-      draggedItem,
+    set((state) => ({
+      draggedItem: {
+        ...state.draggedItem,
+        ...draggedItem,
+      } as SimplifiedScheduleDayItem,
     }));
   },
   startDragging(draggedHandle, draggedItem, position) {
@@ -39,5 +48,11 @@ export const useDraggingStore = create<DraggingStoreState>()((set) => ({
   },
   stopDragging() {
     set(() => ({ draggedItem: undefined, draggedHandle: undefined }));
+  },
+  cancelDragging() {
+    set(() => ({ canDrag: false }));
+  },
+  allowDragging() {
+    set(() => ({ canDrag: false }));
   },
 }));

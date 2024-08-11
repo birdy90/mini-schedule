@@ -5,6 +5,7 @@ import { Ref, useEffect, useMemo } from "react";
 import { DayItem } from "@/components/schedule/dayItem";
 import { useDraggingStore, useItemsStore } from "@/data/store";
 import {
+  calculateRow,
   cn,
   fromSimplifiedItem,
   preparePayload,
@@ -16,21 +17,15 @@ import { usePocket } from "@/components/providers/PocketContext";
 export const WeekDraggingArea = () => {
   const { pb, user } = usePocket();
   const items = useItemsStore((state) => state.itemsList);
-  // const draggingPos = useItemDraggingPos();
 
   const {
-    item,
+    canDrag,
+    draggedItem: item,
     draggedHandle,
     stopDragging,
     updateDraggingItem,
     positionWithinItem,
-  } = useDraggingStore((state) => ({
-    item: state.draggedItem,
-    draggedHandle: state.draggedHandle,
-    stopDragging: state.stopDragging,
-    updateDraggingItem: state.updateDraggingItem,
-    positionWithinItem: state.positionWithinItem,
-  }));
+  } = useDraggingStore();
   const { updateItem } = useItemsStore((state) => ({
     updateItem: state.updateItem,
   }));
@@ -69,10 +64,6 @@ export const WeekDraggingArea = () => {
     return { x, y };
   };
 
-  const calculateRow = (y: number) => {
-    return clamp(Math.floor(y / (stepY || 1)) + 1, 0, daysOfWeek.length);
-  };
-
   const calculateLeftPos = (x: number) => {
     const mappedPos = coordsToTimeIndex(x);
     return mappedPos - (mappedPos % (calendarSettings.minChangeStep / 60));
@@ -88,17 +79,22 @@ export const WeekDraggingArea = () => {
 
     switch (draggedHandle) {
       case "item":
-        refItemSize.current.parentElement.style.gridRow = calculateRow(y);
+        const day = calculateRow(y, stepY);
+        refItemSize.current.parentElement.style.gridRow = day;
         const leftPosItem = clamp(
           calculateLeftPos(x - (positionWithinItem?.x ?? 0)),
           calendarSettings.startTime,
           calendarSettings.endTime - itemDuration,
         );
+        const timeRange = [leftPosItem, leftPosItem + itemDuration] as [
+          number,
+          number,
+        ];
 
         updateDraggingItem({
           ...item,
-          day: calculateRow(y),
-          timeRange: [leftPosItem, leftPosItem + itemDuration],
+          day,
+          timeRange,
         });
         break;
       case "start":
@@ -153,23 +149,24 @@ export const WeekDraggingArea = () => {
     stopDragging();
   };
 
-  function onCancelDragging(e: KeyboardEvent) {
+  function onEscapeClick(e: KeyboardEvent) {
     if (e.key === "Escape") {
       stopDragging();
     }
   }
 
   useEffect(() => {
+    if (!canDrag) return;
     document.addEventListener("pointermove", onMouseMove);
     document.addEventListener("pointerup", onMouseUp);
-    document.addEventListener("keydown", onCancelDragging);
+    document.addEventListener("keydown", onEscapeClick);
 
     return () => {
       document.removeEventListener("pointermove", onMouseMove);
       document.removeEventListener("pointerup", onMouseUp);
-      document.removeEventListener("keydown", onCancelDragging);
+      document.removeEventListener("keydown", onEscapeClick);
     };
-  }, [item]);
+  }, [item, canDrag]);
 
   return (
     <div className={"absolute size-full z-20 pointer-events-none px-1"}>

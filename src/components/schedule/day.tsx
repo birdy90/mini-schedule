@@ -44,7 +44,7 @@ export const Day = (props: DayProps) => {
           const Component = item.preview ? PreviewDayItem : DayItem;
           return (
             <Component
-              key={`${item.title}${JSON.stringify(item.timeRange)}`}
+              key={`${item.id}-${item.title}${JSON.stringify(item.timeRange)}`}
               item={item}
             />
           );

@@ -1,4 +1,5 @@
 import {
+  ItemTimeRange,
   ScheduleDayItem,
   ScheduleDayItemPayload,
   SimplifiedScheduleDayItem,
@@ -19,7 +20,7 @@ export function timeIndexToTimeString(index: number) {
 }
 
 export function dateRangeToTimeIndex(dates: [Date, Date]) {
-  return dates.map(datetimeToTimeIndex) as [number, number];
+  return dates.map(datetimeToTimeIndex) as ItemTimeRange;
 }
 
 export function timeIndexAndDayToDate(index: number, day: number): Date {
