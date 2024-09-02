@@ -1,6 +1,5 @@
 import { useDraggingStore, useItemsStore } from "@/data/store";
 import { useElementSize, useThrottledCallback } from "@mantine/hooks";
-import { usePocket } from "@/components/providers/PocketContext";
 import { calendarSettings, daysOfWeek } from "@/data";
 import { Ref, useCallback, useEffect, useMemo, useRef } from "react";
 import {
@@ -10,7 +9,6 @@ import {
   createRemap,
   fromSimplifiedItem,
   getItemDimensions,
-  preparePayload,
   toSimplifiedItem,
 } from "@/utils";
 import { WeekGrid } from "@/components/schedule/weekGrid";
@@ -18,7 +16,6 @@ import { DayItem } from "@/components/schedule/dayItem";
 import { useAppOrientation } from "@/components/providers/OrientationContext";
 
 export const DragArea = () => {
-  const { pb, user } = usePocket();
   const { itemsList: items, updateItem } = useItemsStore();
   const { isHorizontal } = useAppOrientation();
   const {
@@ -163,11 +160,6 @@ export const DragArea = () => {
           simplifiedOriginal.day !== item.day
         ) {
           const updatedItem = fromSimplifiedItem(item);
-          if (user) {
-            pb
-              ?.collection("miniSchedule")
-              .update(item.id, preparePayload(updatedItem));
-          }
           updateItem(item.id, updatedItem);
         }
       }

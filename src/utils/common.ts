@@ -1,6 +1,4 @@
-import { ForwardedRef, MutableRefObject, useMemo } from "react";
-import { calendarSettings } from "@/data";
-import { useAppOrientation } from "@/components/providers/OrientationContext";
+import { ForwardedRef, MutableRefObject } from "react";
 
 export function clamp(number: number, min: number, max: number) {
   return Math.max(min, Math.min(number, max));
@@ -27,26 +25,6 @@ export function createRemap(
   outMax: number,
 ) {
   return function reMapper(x: number) {
-    // if (inMax - inMin === 0) return 0;
     return ((x - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
   };
 }
-
-const useCoordsToTimeIndex = (
-  width: number,
-  height: number,
-  deps: unknown[],
-) => {
-  const { isHorizontal } = useAppOrientation();
-
-  return useMemo(
-    () =>
-      createRemap(
-        0,
-        isHorizontal ? width : height,
-        calendarSettings.startTime,
-        calendarSettings.endTime,
-      ),
-    deps,
-  );
-};

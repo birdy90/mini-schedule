@@ -8,6 +8,7 @@ interface ItemsStoreState {
   editedItem?: ScheduleDayItem;
 
   fillItems: (data: ScheduleDayItem[]) => void;
+  initialized: boolean;
   initializeItems: () => void;
   addItem: (item: ScheduleDayItem) => void;
   updateItem: (id: string | undefined, newItem: ScheduleDayItem) => void;
@@ -24,6 +25,7 @@ const findItemIndex = (list: ScheduleDayItem[], itemId: string): number => {
 export const useItemsStore = create<ItemsStoreState>()((set) => ({
   itemsList: [],
   editedItem: undefined,
+  initialized: false,
 
   fillItems: (data) => {
     const itemsList = data.map((item) => {
@@ -38,7 +40,7 @@ export const useItemsStore = create<ItemsStoreState>()((set) => ({
 
   initializeItems: () => {
     const itemsList = localStorageHandler.get();
-    set(() => ({ itemsList }));
+    set(() => ({ itemsList, initialized: true }));
   },
 
   addItem: (item) => {
