@@ -18,7 +18,6 @@ export interface ScheduleDayItem extends ScheduleDayItemBase {
 export interface ScheduleDayItemPayload extends ScheduleDayItemBase {
   startDate: string;
   endDate: string;
-  owner: string;
 }
 
 export type ItemTimeRange = [number, number];

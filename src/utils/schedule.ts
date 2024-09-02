@@ -4,7 +4,6 @@ import {
   ScheduleDayItemPayload,
   SimplifiedScheduleDayItem,
 } from "@/types";
-import { AuthModel } from "pocketbase";
 import { calendarSettings } from "@/data";
 
 export function datetimeToTimeIndex(d: Date) {
@@ -70,7 +69,6 @@ export function fromSimplifiedItem({
 
 export function preparePayload(
   data: ScheduleDayItem,
-  user?: AuthModel,
   emptyId: boolean = false,
 ): ScheduleDayItemPayload {
   return {
@@ -78,7 +76,6 @@ export function preparePayload(
     id: emptyId ? undefined : data.id,
     startDate: data.startDate.toISOString(),
     endDate: data.endDate.toISOString(),
-    owner: user?.id,
   };
 }
 
