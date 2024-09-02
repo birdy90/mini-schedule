@@ -8,10 +8,10 @@ export const useIsDragging = () => {
   }
 
   useEffect(() => {
-    document.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointerup", onPointerUp);
 
     return () => {
-      document.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointerup", onPointerUp);
     };
   }, []);
 

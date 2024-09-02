@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { SimplifiedScheduleDayItem } from "@/types";
 
 export type HandleType = "start" | "end" | "item";
-type Coords = { x: number; y: number };
+type Coords = { x: number | "50%"; y: number | "50%" };
 
 interface DraggingStoreState {
   canDrag: boolean;

@@ -1,4 +1,4 @@
-import { useForm } from "@tanstack/react-form";
+import { useForm, Validator } from "@tanstack/react-form";
 import {
   BaseModalProps,
   ScheduleDayItem,
@@ -21,12 +21,14 @@ export const AddModal = (props: BaseModalProps) => {
   const { editedItem, clearEditedItem, addItem, updateItem, deleteItem } =
     useItemsStore();
 
-  const form = useForm<ScheduleDayItem>({
+  const form = useForm<ScheduleDayItem, Validator<ScheduleDayItem>>({
     validatorAdapter: zodValidator(),
     defaultValues: editedItem ?? {
       title: "",
       regular: true,
       background: false,
+      startDate: new Date(),
+      endDate: new Date(),
     },
     onSubmit: ({ value }) => {
       setApiTransition(true);
@@ -103,12 +105,16 @@ export const AddModal = (props: BaseModalProps) => {
               <Input.Wrapper
                 label="Event name"
                 description={
-                  <>
-                    {format(form.state.values.startDate, "iiii")},&nbsp;
-                    {format(form.state.values.startDate, "p")}
-                    &nbsp;&mdash;&nbsp;
-                    {format(form.state.values.endDate, "p")}
-                  </>
+                  form.state.values.startDate &&
+                  form.state.values.endDate && (
+                    <>
+                      {format(form.state.values.startDate, "iiii")}
+                      ,&nbsp;
+                      {format(form.state.values.startDate, "p")}
+                      &nbsp;&mdash;&nbsp;
+                      {format(form.state.values.endDate, "p")}
+                    </>
+                  )
                 }
                 required={true}
                 error={error}

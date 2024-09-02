@@ -1,25 +1,26 @@
-import { calendarSettings, daysOfWeek } from "@/data";
+import { daysOfWeek } from "@/data";
 import { cn } from "@/utils/cn";
+import { useAppOrientation } from "@/components/providers/OrientationContext";
+import { WeekGrid } from "@/components/schedule/weekGrid";
 
 export const DayNamesCol = () => {
+  const { isHorizontal } = useAppOrientation();
+
   return (
-    <div
-      className={cn("flex flex-col gap-4 text-xs size-full")}
-      style={{
-        gridTemplateColumns: `repeat(${calendarSettings.dividerStepsCount}, 1fr)`,
-      }}
-    >
+    <WeekGrid className={cn("text-xs")}>
       {daysOfWeek.map((day, index) => (
         <div
           key={day}
           className={cn(
-            "flex flex-col items-center justify-center grow",
+            "flex items-center justify-center grow",
             index >= 5 && "text-secondary-700",
           )}
         >
-          <div className={cn("-rotate-90")}>{day}</div>
+          <div className={cn(isHorizontal && "-rotate-90")}>
+            {day.toLowerCase()}
+          </div>
         </div>
       ))}
-    </div>
+    </WeekGrid>
   );
 };

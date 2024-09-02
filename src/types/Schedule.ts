@@ -26,25 +26,18 @@ export type ItemTimeRange = [number, number];
 export interface SimplifiedScheduleDayItem extends ScheduleDayItemBase {
   timeRange: ItemTimeRange;
   day: number;
-  preview?: boolean;
 }
 
 export interface WeekProps {
   items: ScheduleDayItem[];
 }
 
-export interface ScheduleItemProps {
-  item: SimplifiedScheduleDayItem;
-  timeInterval: ItemTimeRange;
-  preview?: boolean;
-}
-
 export interface DayDividerProps {
   index: number;
-  timeInterval: ItemTimeRange;
 }
 
 export interface DayProps {
+  className?: string;
   index?: number;
   items?: SimplifiedScheduleDayItem[];
 }

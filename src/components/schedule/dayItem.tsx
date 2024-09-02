@@ -3,15 +3,13 @@ import { SimplifiedScheduleDayItem } from "@/types";
 import { Modal } from "@mantine/core";
 import { AddModal } from "@/components/schedule/modal/addModal";
 import { useDisclosure } from "@mantine/hooks";
-import {
-  fromSimplifiedItem,
-  timeIndexToOffsetPercentage,
-} from "@/utils/schedule";
+import { fromSimplifiedItem } from "@/utils/schedule";
 import { useDraggingStore, useItemsStore } from "@/data/store";
 import { CSSProperties, forwardRef, PointerEvent, useRef } from "react";
 import { DayItemHandle } from "@/components/schedule/dayItemHandle";
 import { mergedRef } from "@/utils/common";
 import { useIsDragging } from "@/utils/hooks/useIsDragging";
+import { useAppOrientation } from "@/components/providers/OrientationContext";
 
 interface DayItemProps {
   item: SimplifiedScheduleDayItem;
@@ -25,37 +23,40 @@ export const DayItem = forwardRef<HTMLDivElement, DayItemProps>(
     const myRef = useRef<HTMLDivElement>(null);
     const [modalOpened, modalActions] = useDisclosure(false);
     const setEditedItem = useItemsStore((state) => state.setEditedItem);
-    const { startDragging, draggedItem, stopDragging } = useDraggingStore();
+    const { startDragging, draggedItem, stopDragging, canDrag } =
+      useDraggingStore();
     const [isMouseDown, setIsMouseDown] = useIsDragging();
+    const { isVertical } = useAppOrientation();
 
     const item = props.item;
-    const itemStartTime = item.timeRange[0];
-    const itemEndTime = item.timeRange[1];
-
-    const itemDuration = itemEndTime - itemStartTime;
-    const startOffsetPercentage = timeIndexToOffsetPercentage(itemStartTime);
-    const endOffsetPercentage = timeIndexToOffsetPercentage(itemEndTime);
-    const itemWidthPercentage = endOffsetPercentage - startOffsetPercentage;
 
     const itemClasses = cn(
-      "rounded-md select-none cursor-pointer",
-      "absolute top-0 border-2 p-0.5",
-      "flex justify-center text-xs tracking-wide",
+      "rounded-md select-none",
+      "flex justify-center items-center size-full",
+      "border-2 p-0.5 transition-colors",
       item.regular ? "text-main-600" : "text-secondary-600",
-      item.background
-        ? "top-0 -bottom-0 items-center z-0 outline outline-dashed outline-1"
-        : "text-white shadow-xl top-0 bottom-0 items-center z-10",
+      item.background ? "items-center z-0" : "text-white shadow-xl z-10",
       item.regular
         ? item.background
-          ? "bg-main-50 border-gray-100 hover:border-gray-300"
-          : "border-main-700/10 hover:border-main-800 bg-main-700/80 shadow-main-700/40"
+          ? "bg-main-50 border-main-100"
+          : "border-main-700/10 bg-main-700/80 shadow-main-700/40"
         : item.background
-          ? "bg-secondary-50 border-gray-100 hover:border-gray-300"
-          : "border-secondary-700/10 hover:border-secondary-800 bg-secondary-700/80 shadow-secondary-700/40",
+          ? "bg-secondary-50 border-secondary-100"
+          : "border-secondary-700/10 bg-secondary-700/80 shadow-secondary-700/40",
+      canDrag &&
+        (item.regular
+          ? item.background
+            ? "hover:border-main-200"
+            : "hover:border-main-800"
+          : item.background
+            ? "hover:border-secondary-200"
+            : "hover:border-secondary-800"),
+      canDrag && "cursor-pointer",
       props.className,
     );
 
-    function onEditOpen() {
+    function onEditOpen(e: PointerEvent<HTMLDivElement>) {
+      e.stopPropagation();
       stopDragging();
       setEditedItem(fromSimplifiedItem(item));
       modalActions.open();
@@ -66,6 +67,8 @@ export const DayItem = forwardRef<HTMLDivElement, DayItemProps>(
     }
 
     function onPointerMove(e: PointerEvent<HTMLDivElement>) {
+      e.stopPropagation();
+
       if (!isMouseDown || !!draggedItem) return;
       const rect = myRef.current?.getBoundingClientRect() ?? { x: 0, y: 0 };
       const coords = { x: e.clientX - rect.x, y: e.clientY - rect.y };
@@ -76,24 +79,31 @@ export const DayItem = forwardRef<HTMLDivElement, DayItemProps>(
       <div
         ref={mergedRef<HTMLDivElement>(ref, myRef)}
         className={itemClasses}
-        onDoubleClick={onEditOpen}
-        onPointerMove={onPointerMove}
-        onPointerDown={onPointerDown}
-        style={{
-          width: `calc(${itemWidthPercentage}% - ${0.25}rem)`,
-          marginLeft: `calc(${startOffsetPercentage}% + ${0.125}rem)`,
-          ...props.style,
-        }}
+        onDoubleClick={canDrag ? onEditOpen : undefined}
+        onPointerMove={canDrag ? onPointerMove : undefined}
+        onPointerDown={canDrag ? onPointerDown : undefined}
+        onClick={(e) => e.stopPropagation()}
+        style={props.style}
         aria-label={`${item.title} at ${item.timeRange[0]} o'clock`}
       >
-        <DayItemHandle isRegular={item.regular} item={item} side={"start"} />
-        <DayItemHandle isRegular={item.regular} item={item} side={"end"} />
+        {canDrag && (
+          <>
+            <DayItemHandle
+              isRegular={item.regular}
+              item={item}
+              side={"start"}
+            />
+            <DayItemHandle isRegular={item.regular} item={item} side={"end"} />
+          </>
+        )}
 
         <div
           className={cn(
-            itemDuration <= 1 && "-rotate-90",
-            itemDuration > 1 && itemDuration <= 2 && "-rotate-90 sm:rotate-0",
-            "text-center font-bold scale-90",
+            // itemDuration <= 1 && "-rotate-90",
+            // itemDuration > 1 && itemDuration <= 2 && "-rotate-90 sm:rotate-0",
+            isVertical && "-rotate-180",
+            !item.background ? "font-bold" : "tracking-wide",
+            "text-center text-xs scale-90",
             "pointer-events-none",
           )}
         >

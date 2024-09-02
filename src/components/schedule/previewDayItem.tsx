@@ -43,8 +43,6 @@ export const PreviewDayItem = (props: DayItemProps) => {
         marginLeft: `calc(${itemOffsetPercentage}% + ${0.125}rem)`,
         ...props.style,
       }}
-    >
-      <span className={cn(itemDuration < 1 && "-rotate-90", "leading-none")} />
-    </div>
+    />
   );
 };

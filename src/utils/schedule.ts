@@ -59,7 +59,6 @@ export function toSimplifiedItem({
 export function fromSimplifiedItem({
   timeRange,
   day,
-  preview,
   ...item
 }: SimplifiedScheduleDayItem): ScheduleDayItem {
   return {
@@ -92,3 +91,22 @@ export function deserializePayload(
     endDate: new Date(item.endDate),
   };
 }
+
+export const getItemDimensions = (
+  item: SimplifiedScheduleDayItem,
+  isHorizontal: boolean,
+) => {
+  const itemStartTime = item.timeRange[0];
+  const itemEndTime = item.timeRange[1];
+
+  const startOffsetPercentage = timeIndexToOffsetPercentage(itemStartTime);
+  const endOffsetPercentage = timeIndexToOffsetPercentage(itemEndTime);
+  const itemWidthPercentage = endOffsetPercentage - startOffsetPercentage;
+
+  return {
+    [isHorizontal ? "width" : "height"]:
+      `calc(${itemWidthPercentage}% - ${0.25}rem)`,
+    [isHorizontal ? "marginLeft" : "marginTop"]:
+      `calc(${startOffsetPercentage}% + ${0.125}rem)`,
+  };
+};

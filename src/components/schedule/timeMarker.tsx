@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { cn, datetimeToTimeIndex, timeIndexToOffsetPercentage } from "@/utils";
 import { calendarSettings } from "@/data";
+import { useAppOrientation } from "@/components/providers/OrientationContext";
 
 const getCurrentTimeIndex = () => {
   const today = new Date();
@@ -13,10 +14,14 @@ this indicator works only within <Day/> component, as it relies on its layout
 export const TimeMarker = () => {
   const [currentTime, setCurrentTime] = useState(getCurrentTimeIndex());
   const leftOffset = timeIndexToOffsetPercentage(currentTime);
+  const { isHorizontal } = useAppOrientation();
 
   const classes = cn(
-    "border border-main-800/80 w-0 h-full top-0.5 absolute z-20",
-    "after:content-[''] after:size-2 after:rounded-full after:bg-main-800/80 after:absolute after:-bottom-2 after:-left-1",
+    "border border-main-900/90 absolute z-20",
+    "after:content-[''] after:size-2 after:rounded-full after:bg-main-900/90 after:absolute",
+    isHorizontal
+      ? "top-0.5 h-full w-0 after:-left-1 after:-bottom-2"
+      : "left-0.5 w-full h-0 after:-top-1 after:-right-2",
   );
 
   useEffect(() => {
@@ -41,7 +46,7 @@ export const TimeMarker = () => {
     <div
       className={classes}
       style={{
-        left: `calc(${leftOffset}%)`,
+        [isHorizontal ? "left" : "top"]: `calc(${leftOffset}%)`,
       }}
     />
   );

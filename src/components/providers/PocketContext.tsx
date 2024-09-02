@@ -36,6 +36,7 @@ export const PocketProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   useEffect(() => {
+    // todo: what cookie??
     // send back the default 'pb_auth' cookie to the client with the latest store state
     pb.authStore.onChange(() => {
       setUser(pb.authStore.model ?? null);
@@ -74,4 +75,11 @@ export const PocketProvider = ({ children }: PropsWithChildren) => {
   );
 };
 
-export const usePocket = () => useContext(PocketContext);
+export const usePocket = () => {
+  const ctx = useContext(PocketContext);
+  if (ctx === null) {
+    throw "usePocket should only be used within PocketProvider";
+  }
+
+  return ctx;
+};
