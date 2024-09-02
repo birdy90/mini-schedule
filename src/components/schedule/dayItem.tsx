@@ -85,15 +85,19 @@ export const DayItem = forwardRef<HTMLDivElement, DayItemProps>(
 
         <div
           className={cn(
-            itemDuration <= 1 && (isVertical ? "rotate-180" : "-rotate-90"),
-            // itemDuration > 1 && itemDuration <= 2 && "-rotate-90 sm:rotate-0",
             isVertical && "-rotate-180",
+            itemDuration <= 1.5 &&
+              (isVertical
+                ? "!-rotate-0 [writing-mode:horizontal-tb] w-full"
+                : "!-rotate-180 [writing-mode:vertical-lr]"),
             !item.background ? "font-bold" : "tracking-wide",
-            "text-center text-xs ",
-            "pointer-events-none",
+            "text-center text-xs scale-90",
+            "pointer-events-none ",
           )}
         >
-          {item.title}
+          <div className={"block text-ellipsis overflow-hidden w-full"}>
+            {item.title}
+          </div>
         </div>
       </div>
     );
